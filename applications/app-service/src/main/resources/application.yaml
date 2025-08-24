@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8085
 spring:
   application:
     name: "autenticacion"
@@ -21,4 +21,18 @@ management:
       probes:
         enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8080"
+  allowed-origins: "http://localhost:4200,http://localhost:8085"
+
+routes:
+  paths:
+    users: "/api/v1/usuarios"
+    usersById: "/api/v1/usuarios/{id}"
+
+adapters:
+  r2dbc:
+    host: "localhost"
+    port: 5432
+    database: "seguridad"
+    schema: "public"
+    username: "postgres"
+    password: "sasa1234"
