@@ -20,4 +20,15 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<Use
         return super.save(user);
     }
 
+    @Override
+    public Mono<User> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
+
+    @Override
+    public Mono<User> findByIdentityDocument(String identityDocument) {
+        return repository.findByIdentityDocument(identityDocument);
+    }
+
+
 }

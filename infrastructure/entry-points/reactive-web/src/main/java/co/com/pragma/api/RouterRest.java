@@ -18,7 +18,6 @@ public class RouterRest {
     private final UserPath userPath;
     private final Handler handler;
 
-
     @Bean
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(userPath.getUsers()), handler::listenSaveUser);
