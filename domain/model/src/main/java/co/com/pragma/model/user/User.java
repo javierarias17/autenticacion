@@ -1,14 +1,21 @@
 package co.com.pragma.model.user;
-import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.*;
 //import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
-//@NoArgsConstructor
-@AllArgsConstructor
-@Builder(toBuilder = true)
+@Builder
 public class User {
+
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String identityDocument;
+    private String phone;
+    private Long roleId;
+    private Double baseSalary;
 }
