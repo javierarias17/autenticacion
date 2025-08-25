@@ -3,7 +3,7 @@ package co.com.pragma.usecase.registerapplicantuser;
 import co.com.pragma.model.role.gateways.RoleRepository;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
-import co.com.pragma.usecase.registerapplicantuser.inport.RegisterApplicantUserUseCaseInPort;
+import co.com.pragma.inport.RegisterApplicantUserUseCaseInPort;
 import co.com.pragma.usercase.exceptions.TechnicalException;
 import co.com.pragma.usercase.exceptions.ValidationException;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +30,7 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
         return validateAll(user)
                 .then(Mono.just(user)
                         .map(usr -> {usr.setId(null); return usr;}))
-                .flatMap(userRepository::save)
+                .flatMap(userRepository::saveUser)
                 .onErrorResume(Exception.class, ex -> {
                     //Errores esperados
                     if (ex instanceof ValidationException) {

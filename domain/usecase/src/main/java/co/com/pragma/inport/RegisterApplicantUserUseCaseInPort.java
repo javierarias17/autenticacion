@@ -1,4 +1,4 @@
-package co.com.pragma.usecase.registerapplicantuser.inport;
+package co.com.pragma.inport;
 
 import co.com.pragma.model.user.User;
 import reactor.core.publisher.Mono;

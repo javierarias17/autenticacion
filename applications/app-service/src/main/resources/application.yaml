@@ -37,6 +37,7 @@ routes:
   paths:
     users: "/api/v1/usuarios"
     usersById: "/api/v1/usuarios/{id}"
+    usersByIdentityDocument: "/api/v1/usuarios/identityDocument/{identityDocument}"
 
 adapters:
   r2dbc:

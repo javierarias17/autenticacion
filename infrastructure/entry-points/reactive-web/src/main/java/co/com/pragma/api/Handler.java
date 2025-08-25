@@ -2,9 +2,10 @@ package co.com.pragma.api;
 
 import co.com.pragma.api.dto.UserDTO;
 import co.com.pragma.api.mapper.UserDTOMapper;
+import co.com.pragma.inport.ValidateUserExistenceUseCaseInPort;
 import co.com.pragma.usercase.exceptions.TechnicalException;
 import co.com.pragma.usercase.exceptions.ValidationException;
-import co.com.pragma.usecase.registerapplicantuser.inport.RegisterApplicantUserUseCaseInPort;
+import co.com.pragma.inport.RegisterApplicantUserUseCaseInPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class Handler {
 
     private final RegisterApplicantUserUseCaseInPort registerApplicantUserUseCaseInPort;
+    private final ValidateUserExistenceUseCaseInPort validateUserExistenceUseCaseInPort;
 
     private final UserDTOMapper userMapper;
 
@@ -52,5 +54,33 @@ public class Handler {
                                 .bodyValue(e.getMessage())
                 );
     }
+
+    public Mono<ServerResponse> listenValidateUserExistence(ServerRequest serverRequest) {
+        String identityDocument = serverRequest.pathVariable("identityDocument");
+
+        return validateUserExistenceUseCaseInPort.findByIdentityDocument(identityDocument)
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(userMapper.toResponse(user)))
+                .switchIfEmpty(ServerResponse.notFound().build()) // 404 si no existe
+                .onErrorResume(ServerWebInputException.class, e -> {
+                    Map<String, String> errors = new HashMap<>();
+                    errors.put("Invalid request param:", e.getMostSpecificCause().getMessage());
+                    return ServerResponse.badRequest()
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .bodyValue(errors);
+                })
+                .onErrorResume(ValidationException.class, e ->
+                        ServerResponse.badRequest()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .bodyValue(e.getErrors())
+                )
+                .onErrorResume(TechnicalException.class, e ->
+                        ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .contentType(MediaType.TEXT_PLAIN)
+                                .bodyValue(e.getMessage())
+                );
+    }
+
 
 }
