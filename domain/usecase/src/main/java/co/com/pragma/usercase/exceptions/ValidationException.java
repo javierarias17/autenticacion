@@ -1,7 +1,6 @@
 package co.com.pragma.usercase.exceptions;
 
 import lombok.Getter;
-
 import java.util.Map;
 
 @Getter

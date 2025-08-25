@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -18,15 +20,17 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-    private static Logger LOGGER=Logger.getLogger("InfoLogging");
+    private static final Logger LOGGER=Logger.getLogger("InfoLogging");
 
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final Pattern EMAIL_PATTERN =Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private static final String EMAIL = "email";
 
     @Override
     public Mono<User> saveUser(User user) {
         return validateAll(user)
-                .then(userRepository.save(user))
+                .then(Mono.just(user)
+                        .map(usr -> {usr.setId(null); return usr;}))
+                .flatMap(userRepository::save)
                 .onErrorResume(Exception.class, ex -> {
                     //Errores esperados
                     if (ex instanceof ValidationException) {
@@ -34,13 +38,23 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
                     }
                     // Errores inesperados
                     LOGGER.severe("Technical error: " + ex);
-                    return Mono.error(new TechnicalException("Technical error: Unexpected error saving user"));
+                    return Mono.error(new TechnicalException("Technical error: Unexpected error saving user. Please contact the administrator."));
                 });
     }
 
     private Mono<Void> validateAll(User user) {
-        java.util.Map<String, String> errors = new java.util.HashMap<>();
+        Map<String, String> errors = new HashMap<>();
+        // Validaciones en memoria
+        validateRequiredFields(user, errors);
+        validateRanges(user, errors);
+        if (!errors.isEmpty()) {
+            return Mono.error(new ValidationException(errors));
+        }
+        // Validaciones contra BD
+        return validateWithDatabase(user, errors);
+    }
 
+    private void validateRequiredFields(User user, Map<String, String> errors) {
         if (user.getFirstName() == null || user.getFirstName().isBlank()) {
             errors.put("firstName", "First name is required");
         }
@@ -48,34 +62,39 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
             errors.put("lastName", "Last name is required");
         }
         if (user.getEmail() == null || user.getEmail().isBlank()) {
-            errors.put("email", "Email is required");
+            errors.put(EMAIL, "Email is required");
         } else if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
-            errors.put("email", "Invalid email format");
+            errors.put(EMAIL, "Invalid email format");
         }
         if (user.getBaseSalary() == null) {
             errors.put("baseSalary", "Base salary is required");
-        } else if (user.getBaseSalary().compareTo(BigDecimal.ZERO) < 0
-                || user.getBaseSalary().compareTo(new BigDecimal("15000000")) > 0) {
+        }
+        if (user.getIdentityDocument() == null || user.getIdentityDocument().isBlank()) {
+            errors.put("identityDocument", "Identity document is required");
+        }
+    }
+
+    private void validateRanges(User user, Map<String, String> errors) {
+        if (user.getBaseSalary() != null &&
+                (user.getBaseSalary().compareTo(BigDecimal.ZERO) < 0 ||
+                        user.getBaseSalary().compareTo(new BigDecimal("15000000")) > 0)) {
             errors.put("baseSalary", "Base salary must be between 0 and 15,000,000");
         }
+    }
 
-        if (!errors.isEmpty()) {
-            return Mono.error(new ValidationException(errors));
-        }
-
-        // Validaciones contra la BD
+    private Mono<Void> validateWithDatabase(User user, Map<String, String> errors) {
         return Mono.zip(
-                userRepository.findByEmail(user.getEmail()).hasElement(),
-                userRepository.findByIdentityDocument(user.getIdentityDocument()).hasElement()
-                //roleRepository.findById(user.getRoleId()).hasElement()
+                userRepository.existsByEmail(user.getEmail()),
+                userRepository.existsByIdentityDocument(user.getIdentityDocument()),
+                roleRepository.existsById(user.getRoleId())
         ).flatMap(results -> {
             boolean emailExists = results.getT1();
             boolean docExists = results.getT2();
-            //boolean roleIdExists = results.getT3();
+            boolean roleIdExists = results.getT3();
 
-            if (emailExists) errors.put("email", "Email already registered");
+            if (emailExists) errors.put(EMAIL, "Email already registered");
             if (docExists) errors.put("identityDocument", "Identity document already registered");
-            //if (!roleIdExists) errors.put("roleId", "Role Id does not exist");
+            if (!roleIdExists) errors.put("roleId", "Role Id does not exist");
 
             return errors.isEmpty() ? Mono.empty() : Mono.error(new ValidationException(errors));
         });
