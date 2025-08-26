@@ -15,6 +15,7 @@ public record UserDTO (Long id,
        LocalDate birthDate,
        String address,
        @NotBlank(message = "Identity document is required and cannot be empty")
+       @Pattern(regexp = ValidationPatterns.IDENTITY_DOCUMENT_PATTERN, message = "Identity document must be numeric")
        String identityDocument,
        String phone,
        Long roleId,
