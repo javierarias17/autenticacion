@@ -34,6 +34,7 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
                     if (!errors.isEmpty()) {
                         return Mono.error(new BusinessException(errors));
                     }
+                    user.setId(null);
                     return userRepository.saveUser(user);
                 });
     }
