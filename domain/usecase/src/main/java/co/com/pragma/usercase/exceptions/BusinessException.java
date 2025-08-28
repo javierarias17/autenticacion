@@ -1,16 +1,19 @@
 package co.com.pragma.usercase.exceptions;
 
-import java.util.Map;
+import lombok.Getter;
 
-public class BusinessException extends RuntimeException {
+import java.util.Map;
+@Getter
+public abstract class BusinessException extends RuntimeException { // <- abstract
     private final Map<String, String> errors;
 
-    public BusinessException(Map<String, String> errors) {
-        super("Business validation error");
-        this.errors = errors;
+    protected BusinessException(String message) {
+        super(message);
+        this.errors = Map.of();
     }
 
-    public Map<String, String> getErrors() {
-        return errors;
+    protected BusinessException(String message, Map<String, String> errors) {
+        super(message);
+        this.errors = errors;
     }
 }

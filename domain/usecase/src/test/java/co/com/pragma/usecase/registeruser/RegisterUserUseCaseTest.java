@@ -1,4 +1,4 @@
-package co.com.pragma.usecase.registerapplicantuser;
+package co.com.pragma.usecase.registeruser;
 
 import co.com.pragma.model.role.gateways.RoleRepository;
 import co.com.pragma.model.user.User;
@@ -17,10 +17,10 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-class RegisterApplicantUserUseCaseTest {
+class RegisterUserUseCaseTest {
 
     @InjectMocks
-    private RegisterApplicantUserUseCase registerApplicantUserUseCase;
+    private RegisterUserUseCase registerUserUseCase;
 
     @Mock
     private UserRepository userRepository;
@@ -42,7 +42,7 @@ class RegisterApplicantUserUseCaseTest {
         when(userRepository.saveUser(any(User.class)))
                 .thenReturn(Mono.just(user.toBuilder().id(1L).build()));
 
-        Mono<User> result = registerApplicantUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.saveUser(user);
 
         StepVerifier.create(result)
                 .expectNextMatches(respuesta -> respuesta.getId().equals(1L))
@@ -61,7 +61,7 @@ class RegisterApplicantUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(false));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(true));
 
-        Mono<User> result = registerApplicantUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.saveUser(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
@@ -82,7 +82,7 @@ class RegisterApplicantUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(true));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(true));
 
-        Mono<User> result = registerApplicantUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.saveUser(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
@@ -103,7 +103,7 @@ class RegisterApplicantUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(false));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(false));
 
-        Mono<User> result = registerApplicantUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.saveUser(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->

@@ -49,7 +49,8 @@ public class RouterRest {
                                                   "identityDocument": "1061758338",
                                                   "phone": "3001234567",
                                                   "roleId": 2,
-                                                  "baseSalary": 2500000.00
+                                                  "baseSalary": 2500000.00,
+                                                  "password": "vacaRosada123*"
                                                 }
                                                 """
                                     )
@@ -57,7 +58,7 @@ public class RouterRest {
                     )
             ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "Usuario creado correctamente",
+                    @ApiResponse(responseCode = "201", description = "Usuario creado correctamente",
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = UserDTO.class),
@@ -74,7 +75,8 @@ public class RouterRest {
                                                           "identityDocument": "1061758338",
                                                           "phone": "3001234567",
                                                           "roleId": 2,
-                                                          "baseSalary": 2500000.00
+                                                          "baseSalary": 2500000.00,
+                                                          "password": "abc123$2a$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36Icz9Q60BbWjeMBr3HyCFa"
                                                         }
                                                         """
                                             )
@@ -86,13 +88,13 @@ public class RouterRest {
                                     @ExampleObject(
                                             value = """
                                                 {
-                                                  "status": 400,
                                                   "fields": {
                                                         "firstName": "First name is required and cannot be empty",
                                                         "lastName": "Last name is required and cannot be empty",
                                                         "email": "Email is required and cannot be empty",
                                                         "identityDocument": "Identity document must be numeric",
-                                                        "baseSalary": "Base salary must be greater than or equal to 0"
+                                                        "baseSalary": "Base salary must be greater than or equal to 0",
+                                                        "password": "Password is required"
                                                   }
                                                 }
                                                 """
@@ -104,7 +106,6 @@ public class RouterRest {
                                     @ExampleObject(
                                             value = """
                                                 {
-                                                  "status": 500,
                                                   "message": "An unexpected error occurred. Please contact the administrator."
                                                 }
                                                 """
@@ -115,6 +116,7 @@ public class RouterRest {
     ))
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(POST(userPath.getUsers()), handler::listenSaveUser)
-                 .andRoute(GET(userPath.getUsersByIdentityDocument()), handler::listenValidateUserExistence);
+                .andRoute(POST("/api/v1/login"), handler::logIn)
+                .andRoute(GET(userPath.getUsersByIdentityDocument()), handler::listenValidateUserExistence);
     }
 }

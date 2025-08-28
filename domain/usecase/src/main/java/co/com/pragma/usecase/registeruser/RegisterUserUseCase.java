@@ -1,10 +1,11 @@
-package co.com.pragma.usecase.registerapplicantuser;
+package co.com.pragma.usecase.registeruser;
 
 import co.com.pragma.model.role.gateways.RoleRepository;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
-import co.com.pragma.inport.RegisterApplicantUserUseCaseInPort;
+import co.com.pragma.inport.RegisterUserUseCaseInPort;
 import co.com.pragma.usercase.exceptions.BusinessException;
+import co.com.pragma.usercase.exceptions.ValidationException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCaseInPort {
+public class RegisterUserUseCase implements RegisterUserUseCaseInPort {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -32,7 +33,7 @@ public class RegisterApplicantUserUseCase implements RegisterApplicantUserUseCas
                     if (!tuple.getT3()) errors.put("roleId","Role Id does not exist");
 
                     if (!errors.isEmpty()) {
-                        return Mono.error(new BusinessException(errors));
+                        return Mono.error(new ValidationException(errors));
                     }
                     user.setId(null);
                     return userRepository.saveUser(user);

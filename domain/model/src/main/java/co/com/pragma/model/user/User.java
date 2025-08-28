@@ -10,7 +10,6 @@ import java.time.LocalDate;
 @Setter
 @Builder(toBuilder = true)
 public class User {
-
     private Long id;
     private String firstName;
     private String lastName;
@@ -21,4 +20,5 @@ public class User {
     private String phone;
     private Long roleId;
     private BigDecimal baseSalary;
+    private String password;
 }
