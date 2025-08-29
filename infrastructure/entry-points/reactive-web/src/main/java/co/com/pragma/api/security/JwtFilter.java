@@ -18,7 +18,11 @@ public class JwtFilter implements WebFilter {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getPath().value();
 
-        if (path.startsWith("/api/v1/login")/* || path.startsWith("/api/v1/usuarios")*/) {
+        if (path.startsWith("/api/v1/login")
+                || path.startsWith("/webjars")
+            || path.startsWith("/v3/")
+            || path.startsWith("/swagger-ui/**")
+            || path.startsWith("/swagger-ui.html") /* || path.startsWith("/api/v1/usuarios")*/) {
             return chain.filter(exchange);
         }
 

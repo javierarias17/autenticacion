@@ -74,7 +74,7 @@ public class Handler {
     }
 
 
-    public Mono<ServerResponse> logIn(ServerRequest request) {
+    public Mono<ServerResponse> listenLogIn(ServerRequest request) {
         return request.bodyToMono(LogInDTO.class)
                 .flatMap(validationHandler::validate)
                 .flatMap(dto -> ServerResponse.ok()

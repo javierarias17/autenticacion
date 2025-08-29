@@ -26,12 +26,7 @@ public class LoginService {
 
 
     public Mono<TokenDTO> logIn(LogInDTO dto) {
-        return userRepository.findByEmail(dto.email())
-                .doOnNext(user -> {
-                    logger.info("👉 dto.password(): {}", dto.password());
-                    logger.info("👉 user.getPassword(): {}", user.getPassword());
-                })
-                .filter(user -> passwordEncoder.matches(dto.password(), user.getPassword()))
+        return userRepository.findByEmail(dto.email()).filter(user -> passwordEncoder.matches(dto.password(), user.getPassword()))
                 .map(user -> new TokenDTO(jwtProvider.generateToken(user)))
                 .switchIfEmpty(Mono.error(new InvalidCredentialsException()));
     }
