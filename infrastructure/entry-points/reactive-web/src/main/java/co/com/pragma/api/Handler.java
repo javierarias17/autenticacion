@@ -1,16 +1,11 @@
 package co.com.pragma.api;
 
-import co.com.pragma.api.dto.LogInDTO;
-import co.com.pragma.api.dto.TokenDTO;
+import co.com.pragma.api.dto.*;
 import co.com.pragma.api.security.JwtProvider;
 import co.com.pragma.api.security.LoginService;
-import co.com.pragma.api.security.Role;
-import co.com.pragma.api.validator.input.IdentityDocumentInput;
-import co.com.pragma.api.dto.UserDTO;
 import co.com.pragma.api.mapper.UserDTOMapper;
 import co.com.pragma.api.validator.ValidationHandler;
-import co.com.pragma.inport.LoginUseCaseInPort;
-import co.com.pragma.inport.ValidateUserExistenceUseCaseInPort;
+import co.com.pragma.inport.GetUsersByIdentityDocumentsUseCaseInPort;
 import co.com.pragma.inport.RegisterUserUseCaseInPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,19 +22,17 @@ import reactor.core.publisher.Mono;
 public class Handler {
 
     private final RegisterUserUseCaseInPort registerUserUseCaseInPort;
-    private final LoginUseCaseInPort loginUserUseCaseInPort;
-
+    private final GetUsersByIdentityDocumentsUseCaseInPort getUsersByIdentityDocumentsUseCaseInPort;
     private final LoginService loginService;
-    private final ValidationHandler validationHandler;
 
-    private final ValidateUserExistenceUseCaseInPort validateUserExistenceUseCaseInPort;
+    private final ValidationHandler validationHandler;
     private final UserDTOMapper userMapper;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @PreAuthorize("hasAuthority(T(co.com.pragma.api.security.Role).ADMINISTRATOR.code) or hasAuthority(T(co.com.pragma.api.security.Role).ADVISOR.code)")
-    public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
+    public Mono<ServerResponse> listenRegisterUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(UserDTO.class)
                 .flatMap(validationHandler::validate)
                 .map(userMapper::toModel)
@@ -47,32 +40,22 @@ public class Handler {
                     user.setPassword(passwordEncoder.encode(user.getPassword()));
                     return user;
                 })
-                .flatMap(registerUserUseCaseInPort::saveUser)
+                .flatMap(registerUserUseCaseInPort::execute)
                 .map(userMapper::toResponse).flatMap(dto->ServerResponse.status(HttpStatus.CREATED).bodyValue(dto));
     }
 
-
-    public Mono<ServerResponse> listenLoginUser(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(LogInDTO.class)
+    @PreAuthorize("hasAuthority(T(co.com.pragma.api.security.Role).ADVISOR.code)")
+    public Mono<ServerResponse> listenGetUsersByIdentityDocuments(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(GetUsersByIdentityDocumentsInDTO.class)
                 .flatMap(validationHandler::validate)
-                .flatMap(loginUserDTO -> loginUserUseCaseInPort.login(loginUserDTO.email(), loginUserDTO.password()))
-                .flatMap(token -> ServerResponse.ok().bodyValue(token));
+                .flatMap(request ->
+                        getUsersByIdentityDocumentsUseCaseInPort.execute(request.lstIdentityDocument())
+                                .collectList()
+                                .flatMap(lstUser -> ServerResponse.ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .bodyValue(new GetUsersByIdentityDocumentsOutDTO(userMapper.toResponseList(lstUser))))
+                );
     }
-
-    public Mono<ServerResponse> listenValidateUserExistence(ServerRequest serverRequest) {
-        String identityDocument = serverRequest.pathVariable("identityDocument");
-        return validationHandler.validateValue(
-                IdentityDocumentInput.class,
-                "identityDocument",
-                identityDocument
-        )
-        .then(validateUserExistenceUseCaseInPort.findByIdentityDocument(identityDocument))
-        .flatMap(user -> ServerResponse.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(userMapper.toResponse(user)))
-        .switchIfEmpty(ServerResponse.notFound().build());
-    }
-
 
     public Mono<ServerResponse> listenLogIn(ServerRequest request) {
         return request.bodyToMono(LogInDTO.class)

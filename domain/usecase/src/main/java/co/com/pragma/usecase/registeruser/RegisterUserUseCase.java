@@ -4,7 +4,6 @@ import co.com.pragma.model.role.gateways.RoleRepository;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.inport.RegisterUserUseCaseInPort;
-import co.com.pragma.usercase.exceptions.BusinessException;
 import co.com.pragma.usercase.exceptions.ValidationException;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -20,7 +19,7 @@ public class RegisterUserUseCase implements RegisterUserUseCaseInPort {
     private final RoleRepository roleRepository;
 
     @Override
-    public Mono<User> saveUser(User user) {
+    public Mono<User> execute(User user) {
         Mono<Boolean> existsEmail = userRepository.existsByEmail(user.getEmail());
         Mono<Boolean> existsIdentityDocument = userRepository.existsByIdentityDocument(user.getIdentityDocument());
         Mono<Boolean> existsRole = roleRepository.existsById(user.getRoleId());

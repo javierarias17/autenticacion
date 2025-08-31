@@ -1,4 +1,4 @@
-package co.com.pragma.usecase.validateuserexistence;
+package co.com.pragma.usecase.getusersbyidentitydocuments;
 
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
@@ -19,7 +19,7 @@ public class ValidateUserExistenceUseCaseTest {
     private static final String NON_EXISTING_IDENTITY_DOCUMENT = "0000000000";
 
     @InjectMocks
-    private ValidateUserExistenceUseCase validateUserExistenceUseCase;
+    private GetUsersByIdentityDocumentsUseCase validateUserExistenceUseCase;
 
     @Mock
     private UserRepository userRepository;

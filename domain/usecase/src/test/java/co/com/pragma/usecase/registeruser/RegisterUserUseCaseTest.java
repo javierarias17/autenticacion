@@ -42,7 +42,7 @@ class RegisterUserUseCaseTest {
         when(userRepository.saveUser(any(User.class)))
                 .thenReturn(Mono.just(user.toBuilder().id(1L).build()));
 
-        Mono<User> result = registerUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.execute(user);
 
         StepVerifier.create(result)
                 .expectNextMatches(respuesta -> respuesta.getId().equals(1L))
@@ -61,7 +61,7 @@ class RegisterUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(false));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(true));
 
-        Mono<User> result = registerUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.execute(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
@@ -82,7 +82,7 @@ class RegisterUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(true));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(true));
 
-        Mono<User> result = registerUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.execute(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->
@@ -103,7 +103,7 @@ class RegisterUserUseCaseTest {
         when(userRepository.existsByIdentityDocument(user.getIdentityDocument())).thenReturn(Mono.just(false));
         when(roleRepository.existsById(user.getRoleId())).thenReturn(Mono.just(false));
 
-        Mono<User> result = registerUserUseCase.saveUser(user);
+        Mono<User> result = registerUserUseCase.execute(user);
 
         StepVerifier.create(result)
                 .expectErrorMatches(throwable ->

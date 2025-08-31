@@ -7,7 +7,10 @@ import co.com.pragma.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Repository
 public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<User, UserEntity,Long, UserReactiveRepository> implements UserRepository {
@@ -43,7 +46,7 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<Use
     }
 
     @Override
-    public Mono<User> findByIdentityDocument(String identityDocument) {
-        return repository.findByIdentityDocument(identityDocument);
+    public Flux<User> findByIdentityDocumentIn(List<String> lstIdentityDocument) {
+        return repository.findByIdentityDocumentIn(lstIdentityDocument);
     }
 }

@@ -198,8 +198,8 @@ public class RouterRest {
             ),
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
-        return route(POST(userPath.getUsers()), handler::listenSaveUser)
-                .andRoute(POST("/api/v1/login"), handler::listenLogIn)
-                .andRoute(GET(userPath.getUsersByIdentityDocument()), handler::listenValidateUserExistence);
+        return route(POST(userPath.getUsers()), handler::listenRegisterUser)
+                .andRoute(POST(userPath.getUsersByIdentityDocuments()), handler::listenGetUsersByIdentityDocuments)
+                .andRoute(POST("/api/v1/login"), handler::listenLogIn);
     }
 }
