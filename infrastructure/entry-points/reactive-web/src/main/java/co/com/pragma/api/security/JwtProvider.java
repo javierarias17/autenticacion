@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Stream;
 
 @Component
@@ -28,7 +27,7 @@ public class JwtProvider {
     private Integer expiration;
 
 
-    public Collection<? extends GrantedAuthority> getAuthorities(String roles) {
+    private Collection<? extends GrantedAuthority> getAuthorities(String roles) {
         return Stream.of(roles.split(", ")).map(SimpleGrantedAuthority::new)
                 .toList();
     }
@@ -43,21 +42,12 @@ public class JwtProvider {
                 .compact();
     }
 
-    public Claims getClaims(String token) {
+    public Claims getPayload(String token) {
         return Jwts.parser()
                 .verifyWith(getKey(secret))
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-    }
-
-    public String getSubject(String token) {
-        return Jwts.parser()
-                .verifyWith(getKey(secret))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
     }
 
     public boolean validate(String token){
@@ -75,10 +65,10 @@ public class JwtProvider {
             LOGGER.error("token unsupported");
         } catch (MalformedJwtException e) {
             LOGGER.error("token malformed");
-        } catch (SignatureException e) {
-            LOGGER.error("bad signature");
         } catch (IllegalArgumentException e) {
             LOGGER.error("illegal args");
+        }catch (Exception e){
+            LOGGER.error("Invalid token");
         }
         return false;
     }

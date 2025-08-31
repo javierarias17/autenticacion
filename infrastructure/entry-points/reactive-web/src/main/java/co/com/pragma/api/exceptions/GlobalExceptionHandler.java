@@ -2,6 +2,7 @@ package co.com.pragma.api.exceptions;
 
 import co.com.pragma.usercase.exceptions.BusinessException;
 import co.com.pragma.usercase.exceptions.InvalidCredentialsException;
+import co.com.pragma.usercase.exceptions.InvalidTokenException;
 import co.com.pragma.usercase.exceptions.ValidationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -40,6 +41,7 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
 
         httpStatusCodes.put(ValidationException.class, HttpStatus.BAD_REQUEST);
         httpStatusCodes.put(InvalidCredentialsException.class, HttpStatus.UNAUTHORIZED);
+        httpStatusCodes.put(InvalidTokenException.class, HttpStatus.UNAUTHORIZED);
     }
 
     private Mono<ServerResponse> buildErrorResponse(ServerRequest request) {
@@ -65,7 +67,12 @@ public class GlobalExceptionHandler extends AbstractErrorWebExceptionHandler {
                     ));
             responseBody.put(MESSAGE, "Validation errors");
             responseBody.put(FIELDS, violations);
-        } else if (throwable instanceof BusinessException businessException) {
+        }else if (throwable instanceof InvalidTokenException invalidTokenException) {
+            return ServerResponse.status(responseCode)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .bodyValue(invalidTokenException.getMessage());
+        }
+        else if (throwable instanceof BusinessException businessException) {
             responseBody.put(MESSAGE, businessException.getMessage());
             if(businessException.getErrors() !=null && !businessException.getErrors().isEmpty())
                 responseBody.put(FIELDS, businessException.getErrors());
