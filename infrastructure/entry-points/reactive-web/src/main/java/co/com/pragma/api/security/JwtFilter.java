@@ -1,6 +1,5 @@
 package co.com.pragma.api.security;
 
-import co.com.pragma.usercase.exceptions.InvalidCredentialsException;
 import co.com.pragma.usercase.exceptions.InvalidTokenException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;

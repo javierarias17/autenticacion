@@ -1,6 +1,5 @@
 package co.com.pragma.api.security;
 
-import co.com.pragma.usercase.exceptions.InvalidCredentialsException;
 import co.com.pragma.usercase.exceptions.InvalidTokenException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

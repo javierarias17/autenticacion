@@ -34,8 +34,10 @@ public class JwtProvider {
 
     public String generateToken(User user) {
         return Jwts.builder()
-                .subject(user.getIdentityDocument())
+                .subject(user.getFirstName() + " " + user.getLastName())
                 .claim("roles", getAuthorities(user.getRoleId().toString()))
+                .claim("identityDocument", user.getIdentityDocument())
+                .claim("email", user.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + expiration))
                 .signWith(getKey(secret))

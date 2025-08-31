@@ -32,7 +32,7 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
     try-it-out-enabled: true
-  show-actuator: true
+  show-actuator: false
 
 routes:
   paths:

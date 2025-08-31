@@ -1,6 +1,8 @@
 package co.com.pragma.api;
 
 import co.com.pragma.api.config.UserPath;
+import co.com.pragma.api.dto.GetUsersByIdentityDocumentsInDTO;
+import co.com.pragma.api.dto.GetUsersByIdentityDocumentsOutDTO;
 import co.com.pragma.api.dto.LogInDTO;
 import co.com.pragma.api.dto.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
@@ -32,14 +33,14 @@ public class RouterRest {
     @Bean
     @RouterOperations({
             @RouterOperation(
-                    path = "/api/v1/users",
+                    path = "/api/v1/usuarios",
                     method = {RequestMethod.POST},
                     operation = @Operation(
-                            operationId = "listenSaveUser",
+                            operationId = "listenRegisterUser",
                             summary = "Registrar un usuario",
-                            tags = { "Registro usuario" },
+                            tags = { "Users" },
                             requestBody = @RequestBody(
-                                    description = "Objeto JSON con los campos del usuario.",
+                                    description = "Input data",
                                     required = true,
                                     content = @Content(
                                             mediaType = "application/json",
@@ -65,7 +66,7 @@ public class RouterRest {
                                     )
                             ),
                             responses = {
-                                    @ApiResponse(responseCode = "201", description = "Usuario creado correctamente",
+                                    @ApiResponse(responseCode = "201", description = "Created",
                                             content = @Content(
                                                     mediaType = "application/json",
                                                     schema = @Schema(implementation = UserDTO.class),
@@ -107,6 +108,18 @@ public class RouterRest {
                                                     """
                                                     )
                                             })),
+                                    @ApiResponse(
+                                            responseCode = "403",
+                                            description = "Forbidden",
+                                            content = @Content(
+                                                    mediaType = "text/plain",
+                                                    examples = {
+                                                            @ExampleObject(
+                                                                    value = "Access Denied"
+                                                            )
+                                                    }
+                                            )
+                                    ),
                                     @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(
                                             mediaType = "application/json",
                                             examples = {
@@ -123,14 +136,95 @@ public class RouterRest {
                     )
             ),
             @RouterOperation(
+                    path = "/api/v1/usuarios/porIdentificacionDocumentos",
+                    method = {RequestMethod.POST},
+                    operation = @Operation(
+                            operationId = "listenGetUsersByIdentityDocuments",
+                            summary = "Listar usuarios por documento de identificacion",
+                            tags = { "Users" },
+                            requestBody = @RequestBody(
+                                    description = "Input data",
+                                    required = true,
+                                    content = @Content(
+                                            mediaType = "application/json",
+                                            schema = @Schema(implementation = GetUsersByIdentityDocumentsInDTO.class),
+                                            examples = {
+                                                    @ExampleObject(
+                                                            value = """
+                                                    {
+                                                        "lstIdentityDocument":["34561975","1061769875"]
+                                                    }
+                                                    """
+                                                    )
+                                            }
+                                    )
+                            ),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "OK",
+                                            content = @Content(
+                                                    mediaType = "application/json",
+                                                    schema = @Schema(implementation = GetUsersByIdentityDocumentsOutDTO.class),
+                                                    examples = {
+                                                            @ExampleObject(
+                                                                    value = """
+                                                            {
+                                                             "lstUserDTO": [
+                                                                 {
+                                                                     "id": 56,
+                                                                     "firstName": "Javier",
+                                                                     "lastName": "Arias",
+                                                                     "email": "javierarias17@gmail.com",
+                                                                     "birthDate": null,
+                                                                     "address": "Carrera 5 no. 25n-77",
+                                                                     "identityDocument": "1001001001",
+                                                                     "phone": "3197633852",
+                                                                     "roleId": 1,
+                                                                     "baseSalary": 350000.0
+                                                                 }
+                                                             ]
+                                                             }
+                                                            """
+                                                            )
+                                                    }
+                                            )),
+                                    @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(
+                                            mediaType = "application/json",
+                                            examples = {
+                                                    @ExampleObject(
+                                                            value = """
+                                                    {
+                                                        "message": "Validation errors",
+                                                        "fields": {
+                                                            "lstIdentityDocument": "The list of identity documents cannot be empty"
+                                                        }
+                                                    }
+                                                    """
+                                                    )
+                                            })),
+                                    @ApiResponse(
+                                            responseCode = "403",
+                                            description = "Forbidden",
+                                            content = @Content(
+                                                    mediaType = "text/plain",
+                                                    examples = {
+                                                            @ExampleObject(
+                                                                    value = "Access Denied"
+                                                            )
+                                                    }
+                                            )
+                                    ),
+                            }
+                    )
+            ),
+            @RouterOperation(
                     path = "/api/v1/login",
                     method = {RequestMethod.POST},
                     operation = @Operation(
                             operationId = "listenLogIn",
                             summary = "Login",
-                            tags = { "Autenticacion" },
+                            tags = { "Authentication" },
                             requestBody = @RequestBody(
-                                    description = "Objeto JSON con los campos requeridos del login.",
+                                    description = "Input data",
                                     required = true,
                                     content = @Content(
                                             mediaType = "application/json",
@@ -148,7 +242,7 @@ public class RouterRest {
                                     )
                             ),
                             responses = {
-                                    @ApiResponse(responseCode = "200", description = "Login exitoso",
+                                    @ApiResponse(responseCode = "200", description = "OK",
                                             content = @Content(
                                                     mediaType = "application/json",
                                                     schema = @Schema(implementation = LogInDTO.class),
@@ -182,14 +276,6 @@ public class RouterRest {
                                             examples = {
                                                     @ExampleObject(
                                                             value = "Invalid credentials"
-                                                    )
-                                            }
-                                    )),
-                                    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(
-                                            mediaType = "text/plain",
-                                            examples = {
-                                                    @ExampleObject(
-                                                            value = "Access Denied"
                                                     )
                                             }
                                     ))
