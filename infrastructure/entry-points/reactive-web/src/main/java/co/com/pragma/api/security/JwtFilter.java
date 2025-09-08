@@ -13,6 +13,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class JwtFilter implements WebFilter {
 
+    private static final String INTERNAL_HEADER = "X-Internal-Request";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -24,6 +26,14 @@ public class JwtFilter implements WebFilter {
             || path.startsWith("/swagger-ui/**")
             || path.startsWith("/swagger-ui.html") /*
             || path.startsWith("/api/v1/usuarios")*/) {
+            return chain.filter(exchange);
+        }
+
+
+        // TODO Pendiente implementar el cifrado para invocaciones internas
+        String internalHeader = request.getHeaders().getFirst(INTERNAL_HEADER);
+        if ("true".equalsIgnoreCase(internalHeader)) {
+            exchange.getAttributes().put("internal", true);
             return chain.filter(exchange);
         }
 

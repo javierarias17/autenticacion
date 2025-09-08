@@ -44,7 +44,7 @@ public class Handler {
                 .map(userMapper::toResponse).flatMap(dto->ServerResponse.status(HttpStatus.CREATED).bodyValue(dto));
     }
 
-    @PreAuthorize("hasAuthority(T(co.com.pragma.api.security.Role).ADVISOR.code)")
+    @PreAuthorize("hasAuthority(T(co.com.pragma.api.security.Role).ADVISOR.code) or hasAuthority(T(co.com.pragma.api.security.Role).INTERNAL.code)")
     public Mono<ServerResponse> listenGetUsersByIdentityDocuments(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(GetUsersByIdentityDocumentsInDTO.class)
                 .flatMap(validationHandler::validate)
