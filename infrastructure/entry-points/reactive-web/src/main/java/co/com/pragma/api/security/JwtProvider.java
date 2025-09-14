@@ -21,11 +21,16 @@ public class JwtProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtProvider.class);
 
-    @Value("${jwt.secret}")
-    private String secret;
-    @Value("${jwt.expiration}")
-    private Integer expiration;
+    private final String expiration;
+    private final String secret;
 
+    public JwtProvider(
+            @Value("${jwt.expiration}") String expiration,
+            @Value("${jwt.secret}") String secret
+    ) {
+        this.expiration = expiration;
+        this.secret = secret;
+    }
 
     private Collection<? extends GrantedAuthority> getAuthorities(String roles) {
         return Stream.of(roles.split(", ")).map(SimpleGrantedAuthority::new)
@@ -33,13 +38,15 @@ public class JwtProvider {
     }
 
     public String generateToken(User user) {
+        System.out.println("cuando hace login el expirtarion es: " + expiration); // o usar LOGGER
+
         return Jwts.builder()
                 .subject(user.getFirstName() + " " + user.getLastName())
                 .claim("roles", getAuthorities(user.getRoleId().toString()))
                 .claim("identityDocument", user.getIdentityDocument())
                 .claim("email", user.getEmail())
                 .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + expiration))
+                .expiration(new Date(new Date().getTime() + Long.parseLong(expiration)))
                 .signWith(getKey(secret))
                 .compact();
     }

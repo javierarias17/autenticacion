@@ -2,8 +2,8 @@ package co.com.pragma.api.security;
 
 import co.com.pragma.api.dto.LogInDTO;
 import co.com.pragma.api.dto.TokenDTO;
+import co.com.pragma.api.exceptions.InvalidCredentialsException;
 import co.com.pragma.model.user.gateways.UserRepository;
-import co.com.pragma.usercase.exceptions.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

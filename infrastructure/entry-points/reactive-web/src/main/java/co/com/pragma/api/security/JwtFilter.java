@@ -1,6 +1,6 @@
 package co.com.pragma.api.security;
 
-import co.com.pragma.usercase.exceptions.InvalidTokenException;
+import co.com.pragma.api.exceptions.InvalidTokenException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
