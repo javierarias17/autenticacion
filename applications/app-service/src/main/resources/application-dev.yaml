@@ -1,0 +1,14 @@
+adapters:
+  r2dbc:
+    host: ${DB_HOST}
+    port: ${DB_PORT}
+    database: ${DB_NAME}
+    schema: ${DB_SCHEMA}
+
+aws:
+  region: ${AWS_REGION}
+  secrets:
+    database:
+      name: ${AWS_DB_SECRET_NAME}
+    jwt:
+      name: ${AWS_JWT_SECRET_NAME}

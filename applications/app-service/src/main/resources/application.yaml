@@ -10,7 +10,7 @@ spring:
       enabled: ${H2_CONSOLE_ENABLED}
       path: ${H2_CONSOLE_PATH}
   profiles:
-    include: null
+    active: "${PROFILE_ACTIVE}"
 
 management:
   endpoints:
@@ -39,16 +39,3 @@ routes:
     users: "/api/v1/usuarios"
     usersById: "/api/v1/usuarios/{id}"
     usersByIdentityDocuments: "/api/v1/usuarios/porIdentificacionDocumentos"
-
-adapters:
-  r2dbc:
-    host: ${DB_HOST}
-    port: ${DB_PORT}
-    database: ${DB_NAME}
-    schema: ${DB_SCHEMA}
-    username:  ${DB_USER}
-    password: ${DB_PASSWORD}
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}

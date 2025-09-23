@@ -24,8 +24,9 @@ public class JwtFilter implements WebFilter {
                 || path.startsWith("/webjars")
             || path.startsWith("/v3/")
             || path.startsWith("/swagger-ui/**")
-            || path.startsWith("/swagger-ui.html") /*
-            || path.startsWith("/api/v1/usuarios")*/) {
+            || path.startsWith("/swagger-ui.html")
+            || path.startsWith("/actuator/health")) {
+            exchange.getAttributes().put("internal", true);
             return chain.filter(exchange);
         }
 

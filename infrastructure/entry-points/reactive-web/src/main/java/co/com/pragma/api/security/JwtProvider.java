@@ -1,12 +1,12 @@
 package co.com.pragma.api.security;
 
+import co.com.pragma.api.dto.JwtSecretDTO;
 import co.com.pragma.model.user.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
@@ -24,12 +24,9 @@ public class JwtProvider {
     private final String expiration;
     private final String secret;
 
-    public JwtProvider(
-            @Value("${jwt.expiration}") String expiration,
-            @Value("${jwt.secret}") String secret
-    ) {
-        this.expiration = expiration;
-        this.secret = secret;
+    public JwtProvider(JwtSecretDTO jwtSecretDTO) {
+        this.expiration = jwtSecretDTO.expiration();
+        this.secret = jwtSecretDTO.secret();
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(String roles) {
@@ -38,8 +35,6 @@ public class JwtProvider {
     }
 
     public String generateToken(User user) {
-        System.out.println("cuando hace login el expirtarion es: " + expiration); // o usar LOGGER
-
         return Jwts.builder()
                 .subject(user.getFirstName() + " " + user.getLastName())
                 .claim("roles", getAuthorities(user.getRoleId().toString()))
