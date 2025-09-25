@@ -7,6 +7,7 @@ import co.com.pragma.api.mapper.UserDTOMapper;
 import co.com.pragma.api.validator.ValidationHandler;
 import co.com.pragma.inport.GetUsersByIdentityDocumentsUseCaseInPort;
 import co.com.pragma.inport.RegisterUserUseCaseInPort;
+import co.com.pragma.inport.GetAdminEmailsUseCaseInPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ public class Handler {
 
     private final RegisterUserUseCaseInPort registerUserUseCaseInPort;
     private final GetUsersByIdentityDocumentsUseCaseInPort getUsersByIdentityDocumentsUseCaseInPort;
+    private final GetAdminEmailsUseCaseInPort getAdminEmailsUseCaseInPort;
     private final LoginService loginService;
 
     private final ValidationHandler validationHandler;
@@ -55,6 +57,14 @@ public class Handler {
                                         .contentType(MediaType.APPLICATION_JSON)
                                         .bodyValue(new GetUsersByIdentityDocumentsOutDTO(userMapper.toResponseList(lstUser))))
                 );
+    }
+
+    @PreAuthorize("hasAuthority(T(co.com.pragma.api.security.Role).ADMINISTRATOR.code) or hasAuthority(T(co.com.pragma.api.security.Role).INTERNAL.code)")
+    public Mono<ServerResponse> listenGetAdminEmails(ServerRequest serverRequest) {
+        return getAdminEmailsUseCaseInPort.execute()
+                .flatMap(lstAdminEmails -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(new GetAdminEmailsOutDTO(lstAdminEmails)));
     }
 
     public Mono<ServerResponse> listenLogIn(ServerRequest request) {

@@ -39,3 +39,4 @@ routes:
     users: "/api/v1/usuarios"
     usersById: "/api/v1/usuarios/{id}"
     usersByIdentityDocuments: "/api/v1/usuarios/porIdentificacionDocumentos"
+    adminEmails: "/api/v1/usuarios/admin/emails"

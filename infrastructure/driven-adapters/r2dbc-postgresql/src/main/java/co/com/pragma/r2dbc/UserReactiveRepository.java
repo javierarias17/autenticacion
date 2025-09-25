@@ -14,4 +14,5 @@ public interface UserReactiveRepository extends ReactiveCrudRepository<UserEntit
     Mono<Boolean> existsByIdentityDocument(String identityDocument);
     Mono<User> findByEmail(String email);
     Flux<User> findByIdentityDocumentIn(List<String> identityDocuments);
+    Flux<User> findByRoleId(Long roleId);
 }

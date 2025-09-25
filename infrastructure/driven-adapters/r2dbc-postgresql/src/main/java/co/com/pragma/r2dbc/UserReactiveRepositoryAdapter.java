@@ -49,4 +49,9 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<Use
     public Flux<User> findByIdentityDocumentIn(List<String> lstIdentityDocument) {
         return repository.findByIdentityDocumentIn(lstIdentityDocument);
     }
+
+    @Override
+    public Flux<User> findByRoleId(Long roleId) {
+        return repository.findByRoleId(roleId);
+    }
 }
